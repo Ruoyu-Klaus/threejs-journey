@@ -1,8 +1,9 @@
-import "./style.css";
-import * as THREE from "three";
+import './style.css';
+import * as THREE from 'three';
+import gsap from 'gsap';
 
 // Canvas
-const canvas = document.querySelector("canvas.webgl");
+const canvas = document.querySelector('canvas.webgl');
 
 // Scene
 const scene = new THREE.Scene();
@@ -23,8 +24,6 @@ group.add(mesh1);
 group.add(mesh2);
 group.add(mesh3);
 scene.add(group);
-group.scale.y = 2;
-group.rotation.y = 0.2;
 
 /**
  * Sizes
@@ -37,11 +36,14 @@ const sizes = {
 /**
  * Camera
  */
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
+const camera = new THREE.PerspectiveCamera(
+  75,
+  sizes.width / sizes.height,
+  1,
+  555
+);
 camera.position.z = 3;
 scene.add(camera);
-const axesHelper = new THREE.AxesHelper(2);
-scene.add(axesHelper);
 
 /**
  * Renderer
@@ -50,4 +52,26 @@ const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
 });
 renderer.setSize(sizes.width, sizes.height);
-renderer.render(scene, camera);
+
+//Animation
+// const clock = new THREE.Clock();
+
+gsap.to(group.position, { duration: 1, delay: 1, x: 1 });
+gsap.to(group.position, { duration: 1, delay: 2, x: 0 });
+
+const tick = () => {
+  // Clock
+  // const elapsedTime = clock.getElapsedTime();
+
+  // Update Objects
+  // camera.position.y = Math.sin(elapsedTime);
+  // camera.position.x = Math.cos(elapsedTime);
+
+  // camera.lookAt(group.position);
+
+  // Render
+  renderer.render(scene, camera);
+
+  window.requestAnimationFrame(tick);
+};
+tick();

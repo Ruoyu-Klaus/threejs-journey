@@ -1,30 +1,54 @@
-import "./style.css";
-import * as THREE from "three";
-import ky from "kyouka";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import './style.css';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-/**
- * Base
- */
 // Canvas
-const canvas = document.querySelector("canvas.webgl");
+const canvas = document.querySelector('canvas.webgl');
 
 // Sizes
 const sizes = {
-  width: 800,
-  height: 600,
+  width: window.innerWidth,
+  height: window.innerHeight,
 };
-// const aspectRatio = sizes.width/sizes.height;
+window.addEventListener('resize', () => {
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
+
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
 
 // Scene
 const scene = new THREE.Scene();
 
 // Object
 const mesh = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1, 5, 5, 5),
-  new THREE.MeshBasicMaterial({ color: 0xff0000 })
+  new THREE.BoxGeometry(1, 1, 1, 2, 2, 2),
+  new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
 );
 scene.add(mesh);
+
+// Create My Own Geometry (Triangle)
+const myGeometry = new THREE.Geometry();
+const vertices1 = new THREE.Vector3(2, 2, 0);
+myGeometry.vertices.push(vertices1);
+const vertices2 = new THREE.Vector3(2, 0, 0);
+myGeometry.vertices.push(vertices2);
+const vertices3 = new THREE.Vector3(4, 0, 0);
+myGeometry.vertices.push(vertices3);
+
+const face = new THREE.Face3(0, 1, 2);
+myGeometry.faces.push(face);
+
+const myGeometryMesh = new THREE.Mesh(
+  myGeometry,
+  new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+);
+
+scene.add(myGeometryMesh);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
@@ -33,58 +57,47 @@ const camera = new THREE.PerspectiveCamera(
   1,
   1000
 );
-// const camera = new THREE.OrthographicCamera(-1 * aspectRatio, 1 * aspectRatio, 1, -1, 0.1, 100)
-// camera.position.x = 2
-// camera.position.y = 2
+
 camera.position.z = 3;
 camera.lookAt(mesh.position);
 scene.add(camera);
 
+// Controls
 const controls = new OrbitControls(camera, canvas);
+// Add damping effect
 controls.enableDamping = true;
-controls.enableKeys = true;
-controls.keys = {
-  LEFT: 37, //left arrow
-  UP: 38, // up arrow
-  RIGHT: 39, // right arrow
-  BOTTOM: 40, // down arrow
-};
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
 });
+
 renderer.setSize(sizes.width, sizes.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// const cursor = {
-//   x: 0,
-//   y: 0,
-// };
+const cursor = {
+  x: 0,
+  y: 0,
+};
 
-// window.addEventListener("mousemove", (e) => {
-//   cursor.x = e.clientX / sizes.width - 0.5;
-//   cursor.y = -(e.clientY / sizes.height - 0.5);
-// });
-
-// Animate
-const clock = new THREE.Clock();
+window.addEventListener('mousemove', e => {
+  cursor.x = e.clientX / sizes.width - 0.5;
+  cursor.y = -(e.clientY / sizes.height - 0.5);
+});
 
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
+  // camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 3;
+  // camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 3;
+  // camera.position.y = cursor.y * 5;
+  // camera.lookAt(mesh.position);
 
   // Update objects
-  // mesh.rotation.y = elapsedTime;
-  //   camera.position.x = Math.sin(cursor.x * ky.deg2rad(360)) * 2;
-  //   camera.position.z = Math.cos(cursor.x * ky.deg2rad(360)) * 2;
-  //   camera.position.y = cursor.y * 3;
-  //   camera.lookAt(mesh.position);
 
   controls.update();
 
   // Render
   renderer.render(scene, camera);
 
-  // Call tick again on the next frame
   window.requestAnimationFrame(tick);
 };
 
